@@ -1,3 +1,8 @@
+// opcode bitmasks
+const short OPCODE_BITMASK = 0xF000;
+const short OPERAND_1_BITMASK = 0x0F00;
+const short OPERAND_2_BITMASK = 0x00F0;
+const short SUBTYPE_BITMASK = 0x000F;
 
 typedef struct chip8 {
   unsigned short pc;
