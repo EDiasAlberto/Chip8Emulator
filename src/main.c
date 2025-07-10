@@ -10,6 +10,4 @@ int main() {
   }
 
   initialise_chip8(cpu);
-
-  printf("%i", cpu->pc);
 }

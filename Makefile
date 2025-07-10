@@ -2,24 +2,30 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99 -g
 
-# Target executable
-TARGET = main
+# Directories
+SRC_DIR = src
+OUT_DIR = out
 
 # Source and object files
-SRCS = main.c chip8.c
-OBJS = $(SRCS:.c=.o)
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c,$(OUT_DIR)/%.o,$(SRCS))
+
+# Final executable
+TARGET = $(OUT_DIR)/main
 
 # Default target
 all: $(TARGET)
 
-# Link object files into the final executable
+# Link object files into final executable
 $(TARGET): $(OBJS)
+	@mkdir -p $(OUT_DIR)
 	$(CC) $(CFLAGS) -o $@ $(OBJS)
 
-# Compile .c files into .o files
-%.o: %.c
+# Compile each .c file to .o file in /out/
+$(OUT_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(OUT_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean build files
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -rf $(OUT_DIR)/*
