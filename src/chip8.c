@@ -297,11 +297,15 @@ void handleTimerInstruction(chip8 *cpu) {
     cpu->pc += 2;
     break;
   case 0x0029:
-    // set I to the address represetning the number in VX
-    //  basically memory[0->80 is the fontset], I need to set I to 5 * val(VX)
     uint8_t req_char = cpu->V[target_reg];
     cpu->I = FONT_WIDTH * req_char;
     cpu->pc += 2;
+  case 0x0033:
+    // convert word to BCD and store in I, I+1, I+2; dont change I
+  case 0x0055:
+    // store V0 to Vx in memory starting at I; dont change I
+  case 0x0065:
+    // store I to I+X into V0 to VX; dont change i
   default:
     printf("Not implemented opcode 0x%x\n", cpu->opcode);
   }
