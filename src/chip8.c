@@ -8,9 +8,7 @@
 #include <string.h>
 
 // TODO:
-//- Implement draw instruction
-//- Implement 1NNN jump opcode
-//- Get spash screen test working
+// - implement more opcodes !!
 
 #define OVERFLOW_REG 0xF
 #define OPCODE_BITMASK 0xF000
@@ -337,7 +335,7 @@ bool checkOverflow(char a, char b) {
 
 void drawDisplay(chip8 *cpu) {
   glClear(GL_COLOR_BUFFER_BIT);
-  glColor3f(1.0f, 1.0f, 1.0f); // Set drawing color once
+  glColor3f(1.0f, 1.0f, 1.0f);
 
   glBegin(GL_QUADS);
   for (int row = 0; row < 32; ++row) {
