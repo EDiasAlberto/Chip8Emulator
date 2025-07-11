@@ -155,7 +155,7 @@ void executeCpuCycle(chip8 *cpu) {
   case 0x3000:
     target_reg = getHexDigits(cpu->opcode, 1, 1);
     imm_val = getHexDigits(cpu->opcode, 2, 2);
-    if (cpu->V[target_reg] == imm_val) {
+    if (doRegistersPassCondition(cpu->V[target_reg], imm_val, EQUAL)) {
       cpu->pc += 4;
     } else {
       cpu->pc += 2;
@@ -174,13 +174,13 @@ void executeCpuCycle(chip8 *cpu) {
     handleConditionalSkipOperation(cpu);
   case 0x6000:
     target_reg = getHexDigits(cpu->opcode, 1, 1);
-    imm_val = cpu->opcode & 0x00FF;
+    imm_val = getHexDigits(cpu->opcode, 2, 2);
     cpu->V[target_reg] = imm_val;
     cpu->pc += 2;
     break;
   case 0x7000:
     target_reg = getHexDigits(cpu->opcode, 1, 1);
-    imm_val = cpu->opcode & 0x00FF;
+    imm_val = getHexDigits(cpu->opcode, 1, 1);
     cpu->V[target_reg] = cpu->V[target_reg] + imm_val;
     cpu->pc += 2;
     break;
@@ -191,24 +191,25 @@ void executeCpuCycle(chip8 *cpu) {
   case 0x9000:
     target_reg = getHexDigits(cpu->opcode, 1, 1);
     source_reg = getHexDigits(cpu->opcode, 2, 1);
-    if (cpu->V[source_reg] != cpu->V[target_reg]) {
+    if (doRegistersPassCondition(cpu->V[source_reg], cpu->V[target_reg],
+                                 NOTEQUAL)) {
       cpu->pc += 4;
     } else {
       cpu->pc += 2;
     }
     break;
   case 0xA000:
-    imm_val = cpu->opcode & 0x0FFF;
+    imm_val = getHexDigits(cpu->opcode, 1, 3);
     cpu->I = imm_val;
     cpu->pc += 2;
     break;
   case 0xB000:
-    imm_val = cpu->opcode & 0x0FFF;
+    imm_val = getHexDigits(cpu->opcode, 1, 3);
     cpu->pc = imm_val + cpu->V[0];
     break;
   case 0xC000:
     rand_int = rand() % (255);
-    imm_val = cpu->opcode & 0x00FF;
+    imm_val = getHexDigits(cpu->opcode, 2, 2);
     target_reg = getHexDigits(cpu->opcode, 1, 1);
     cpu->V[target_reg] = rand_int && imm_val;
     cpu->pc += 2;
