@@ -143,17 +143,17 @@ void executeCpuCycle(chip8 *cpu) {
   int rand_int;
 
   switch (cpu->opcode & 0xF000) {
-  case 0x0000:
+  case CONTROL:
     handleControlInstruction(cpu);
     break;
-  case 0x1000:
+  case UNCOND_JUMP:
     cpu->pc = getHexDigits(cpu->opcode, 1, 3);
     break;
-  case 0x2000:
+  case ENTER_SUBROUTINE:
     pushPC(cpu);
     cpu->pc = getHexDigits(cpu->opcode, 1, 3);
     break;
-  case 0x3000:
+  case REG_IMM_COMP_EQ:
     target_reg = getHexDigits(cpu->opcode, 1, 1);
     imm_val = getHexDigits(cpu->opcode, 2, 2);
     if (doRegistersPassCondition(cpu->V[target_reg], imm_val, EQUAL)) {
@@ -162,7 +162,7 @@ void executeCpuCycle(chip8 *cpu) {
       cpu->pc += 2;
     }
     break;
-  case 0x4000:
+  case REG_IMM_COMP_NE:
     target_reg = getHexDigits(cpu->opcode, 1, 1);
     imm_val = getHexDigits(cpu->opcode, 2, 2);
     if (doRegistersPassCondition(cpu->V[target_reg], imm_val, NOTEQUAL)) {
@@ -171,25 +171,25 @@ void executeCpuCycle(chip8 *cpu) {
       cpu->pc += 2;
     }
     break;
-  case 0x5000:
+  case COND_JUMP:
     handleConditionalSkipOperation(cpu);
-  case 0x6000:
+  case LOAD_IMM:
     target_reg = getHexDigits(cpu->opcode, 1, 1);
     imm_val = getHexDigits(cpu->opcode, 2, 2);
     cpu->V[target_reg] = imm_val;
     cpu->pc += 2;
     break;
-  case 0x7000:
+  case ADD_IMM:
     target_reg = getHexDigits(cpu->opcode, 1, 1);
     imm_val = getHexDigits(cpu->opcode, 1, 1);
     cpu->V[target_reg] = cpu->V[target_reg] + imm_val;
     cpu->pc += 2;
     break;
-  case 0x8000:
+  case REG_REG_OP:
     handleRegToRegOperation(cpu);
     cpu->pc += 2;
     break;
-  case 0x9000:
+  case REG_REG_NE:
     target_reg = getHexDigits(cpu->opcode, 1, 1);
     source_reg = getHexDigits(cpu->opcode, 2, 1);
     if (doRegistersPassCondition(cpu->V[source_reg], cpu->V[target_reg],
@@ -199,29 +199,29 @@ void executeCpuCycle(chip8 *cpu) {
       cpu->pc += 2;
     }
     break;
-  case 0xA000:
+  case LOAD_IMM_I:
     imm_val = getHexDigits(cpu->opcode, 1, 3);
     cpu->I = imm_val;
     cpu->pc += 2;
     break;
-  case 0xB000:
+  case LOAD_IMM_PC:
     imm_val = getHexDigits(cpu->opcode, 1, 3);
     cpu->pc = imm_val + cpu->V[0];
     break;
-  case 0xC000:
+  case LOAD_RAND:
     rand_int = rand() % (255);
     imm_val = getHexDigits(cpu->opcode, 2, 2);
     target_reg = getHexDigits(cpu->opcode, 1, 1);
     cpu->V[target_reg] = rand_int && imm_val;
     cpu->pc += 2;
     break;
-  case 0xD000:
+  case DRAW_INSTRUCTION:
     handleDrawInstruction(cpu);
     break;
-  case 0xE000:
+  case KEYP_JUMP:
     handleKeypressSkipInstruction(cpu);
     break;
-  case 0xF000:
+  case TIMER_INSTRUCTION:
     handleTimerInstruction(cpu);
     break;
 
@@ -303,13 +303,11 @@ void handleTimerInstruction(chip8 *cpu) {
   case 0x0033:
     // convert word to BCD and store in I, I+1, I+2; dont change I
   case 0x0055:
-    // store V0 to Vx in memory starting at I; dont change I
     for (int i = 0; i < target_reg; i++) {
       cpu->memory[cpu->I + i] = cpu->V[i];
     }
     cpu->pc += 2;
   case 0x0065:
-    // store I to I+X into V0 to VX; dont change i
     for (int i = 0; i < target_reg; i++) {
       cpu->V[i] = cpu->memory[cpu->I + i];
     }

@@ -36,6 +36,25 @@ enum RegOperationType {
   BITSHIFT_L = 0x000E
 };
 
+enum InstructionClassification {
+  CONTROL = 0x0000,
+  UNCOND_JUMP = 0x1000,
+  ENTER_SUBROUTINE = 0x2000,
+  REG_IMM_COMP_EQ = 0x3000,
+  REG_IMM_COMP_NE = 0x4000,
+  COND_JUMP = 0x5000,
+  LOAD_IMM = 0x6000,
+  ADD_IMM = 0x7000,
+  REG_REG_OP = 0x8000,
+  REG_REG_NE = 0x9000,
+  LOAD_IMM_I = 0xA000,
+  LOAD_IMM_PC = 0xB000,
+  LOAD_RAND = 0xC000,
+  DRAW_INSTRUCTION = 0xD000,
+  KEYP_JUMP = 0xE000,
+  TIMER_INSTRUCTION = 0xF000
+};
+
 void initialise_chip8(chip8 *cpu);
 void load_program(chip8 *cpu, char *program_name);
 void executeCpuCycle(chip8 *cpu);
