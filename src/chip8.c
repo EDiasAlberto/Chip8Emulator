@@ -41,10 +41,14 @@ unsigned char chip8_fontset[80] = {
 
 void handleRegToRegOperation(chip8 *cpu);
 bool checkOverflow(char a, char b);
+bool doRegistersPassCondition(char num1, char num2, uint8_t comparison);
 short getHexDigits(short opcode, uint8_t start_pos, uint8_t num_bits);
+void pushPC(chip8 *cpu);
+void popPC(chip8 *cpu);
 
 void handleControlInstruction(chip8 *cpu);
 void handleKeypressSkipInstruction(chip8 *cpu);
+void handleConditionalSkipOperation(chip8 *cpu);
 void handleTimerInstruction(chip8 *cpu);
 void handleDrawInstruction(chip8 *cpu);
 
@@ -144,8 +148,32 @@ void executeCpuCycle(chip8 *cpu) {
     handleControlInstruction(cpu);
     break;
   case 0x1000:
-    cpu->pc = cpu->opcode & 0x0FFF;
+    cpu->pc = getHexDigits(cpu->opcode, 1, 3);
     break;
+  case 0x2000:
+    pushPC(cpu);
+    cpu->pc = getHexDigits(cpu->opcode, 1, 3);
+    break;
+  case 0x3000:
+    target_reg = getHexDigits(cpu->opcode, 1, 1);
+    imm_val = getHexDigits(cpu->opcode, 2, 2);
+    if (cpu->V[target_reg] == imm_val) {
+      cpu->pc += 4;
+    } else {
+      cpu->pc += 2;
+    }
+    break;
+  case 0x4000:
+    target_reg = getHexDigits(cpu->opcode, 1, 1);
+    imm_val = getHexDigits(cpu->opcode, 2, 2);
+    if (cpu->V[target_reg] != imm_val) {
+      cpu->pc += 4;
+    } else {
+      cpu->pc += 2;
+    }
+    break;
+  case 0x5000:
+    handleConditionalSkipOperation(cpu);
   case 0x6000:
     target_reg = getHexDigits(cpu->opcode, 1, 1);
     imm_val = cpu->opcode & 0x00FF;
@@ -204,11 +232,23 @@ void executeCpuCycle(chip8 *cpu) {
 
 void handleControlInstruction(chip8 *cpu) {
   switch (cpu->opcode & 0x00F0) {
+  case 0x0010:
+    cpu->exit_flag = true;
+    cpu->exit_status = getHexDigits(cpu->opcode, 3, 1);
+    break;
   case 0x00E0:
-    clearDisplay(cpu);
-    cpu->pc += 2;
+    switch (cpu->opcode & 0x000F) {
+    case 0x0000:
+      clearDisplay(cpu);
+      cpu->pc += 2;
+      break;
+    case 0x000E:
+      popPC(cpu);
+      break;
+    }
     break;
   default:
+    // 0x0NNN is a jump to NNN
     printf("Unknown control instruction: 0x%x\n", cpu->opcode);
   }
 }
@@ -329,6 +369,18 @@ void handleDrawInstruction(chip8 *cpu) {
   cpu->pc += 2;
 }
 
+void handleConditionalSkipOperation(chip8 *cpu) {
+  uint8_t target_reg = getHexDigits(cpu->opcode, 1, 1);
+  uint8_t source_reg = getHexDigits(cpu->opcode, 2, 1);
+  uint8_t comparisonIdentifier = getHexDigits(cpu->opcode, 3, 1);
+  if (doRegistersPassCondition(cpu->V[source_reg], cpu->V[target_reg],
+                               comparisonIdentifier)) {
+    cpu->pc += 4;
+  } else {
+    cpu->pc += 2;
+  }
+}
+
 bool checkOverflow(char a, char b) {
   return ((unsigned int)a + (unsigned int)b > UCHAR_MAX);
 }
@@ -360,4 +412,35 @@ short getHexDigits(short opcode, uint8_t start_pos, uint8_t num_bits) {
   uint8_t shift = 4 * (4 - (start_pos + num_bits));
   int bitmask = (1 << (4 * num_bits)) - 1;
   return (opcode >> shift) & bitmask;
+}
+
+bool doRegistersPassCondition(char num1, char num2, uint8_t comparison) {
+  switch (comparison) {
+  case 0x0:
+    return num1 == num2;
+    break;
+  case 0x1:
+    return num1 >= num2;
+    break;
+  case 0x2:
+    return num1 <= num2;
+    break;
+  case 0x3:
+    return num1 != num2;
+    break;
+  default:
+    printf("UNEXPECTED COMPARISON VALUE 0x%x\n", comparison);
+  }
+}
+
+void pushPC(chip8 *cpu) {
+  cpu->sp++;
+  cpu->stack[cpu->sp] = cpu->pc;
+}
+
+void popPC(chip8 *cpu) {
+  cpu->pc = cpu->stack[cpu->sp];
+  cpu->sp--;
+  if (cpu->sp < 0)
+    cpu->sp = 0;
 }

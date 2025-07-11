@@ -22,6 +22,10 @@ int main() {
       glfwSwapBuffers(cpu->window);
     }
     glfwPollEvents();
+    if (cpu->exit_flag) {
+      printf("Exiting emulation with exit status %i\n", cpu->exit_status);
+      return 0;
+    }
   }
   return 0;
 }

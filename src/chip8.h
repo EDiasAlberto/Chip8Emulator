@@ -17,6 +17,9 @@ typedef struct chip8 {
 
   unsigned char delay_timer;
   unsigned char sound_timer;
+
+  bool exit_flag;
+  unsigned short exit_status;
 } chip8;
 
 void initialise_chip8(chip8 *cpu);
