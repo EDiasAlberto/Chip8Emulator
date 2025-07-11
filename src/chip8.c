@@ -13,6 +13,7 @@
 // - implement key controls
 
 #define OVERFLOW_REG 0xF
+#define FONT_WIDTH 5
 
 #define PIXEL_SIZE 10
 #define WINDOW_WIDTH (64 * PIXEL_SIZE)
@@ -262,7 +263,6 @@ void handleKeypressSkipInstruction(chip8 *cpu) {
     }
     break;
   case 0x00A1:
-
     if (cpu->key[getHexDigits(cpu->opcode, 1, 1)]) {
       cpu->pc += 2;
     } else {
@@ -296,6 +296,12 @@ void handleTimerInstruction(chip8 *cpu) {
     cpu->V[OVERFLOW_REG] = (cpu->I > 0x0FFF);
     cpu->pc += 2;
     break;
+  case 0x0029:
+    // set I to the address represetning the number in VX
+    //  basically memory[0->80 is the fontset], I need to set I to 5 * val(VX)
+    uint8_t req_char = cpu->V[target_reg];
+    cpu->I = FONT_WIDTH * req_char;
+    cpu->pc += 2;
   default:
     printf("Not implemented opcode 0x%x\n", cpu->opcode);
   }
