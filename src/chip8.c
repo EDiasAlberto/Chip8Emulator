@@ -254,16 +254,17 @@ void handleControlInstruction(chip8 *cpu) {
 }
 
 void handleKeypressSkipInstruction(chip8 *cpu) {
+  uint8_t target_reg = getHexDigits(cpu->opcode, 1, 1);
   switch (cpu->opcode & 0x00FF) {
   case 0x009E:
-    if (cpu->key[getHexDigits(cpu->opcode, 1, 1)]) {
+    if (cpu->key[cpu->V[target_reg]] != 0) {
       cpu->pc += 4;
     } else {
       cpu->pc += 2;
     }
     break;
   case 0x00A1:
-    if (cpu->key[getHexDigits(cpu->opcode, 1, 1)]) {
+    if (cpu->key[cpu->V[target_reg]] != 0) {
       cpu->pc += 2;
     } else {
       cpu->pc += 4;
@@ -301,7 +302,10 @@ void handleTimerInstruction(chip8 *cpu) {
     cpu->I = FONT_WIDTH * req_char;
     cpu->pc += 2;
   case 0x0033:
-    // convert word to BCD and store in I, I+1, I+2; dont change I
+    cpu->memory[cpu->I] = cpu->V[target_reg] / 100;
+    cpu->memory[cpu->I + 1] = (cpu->V[target_reg] / 10) % 10;
+    cpu->memory[cpu->I + 2] = (cpu->V[target_reg] % 100) % 10;
+    cpu->pc += 2;
   case 0x0055:
     for (int i = 0; i < target_reg; i++) {
       cpu->memory[cpu->I + i] = cpu->V[i];
