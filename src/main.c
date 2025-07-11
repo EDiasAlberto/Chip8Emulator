@@ -13,7 +13,7 @@ int main() {
   }
 
   initialise_chip8(cpu);
-  load_program(cpu, "./tests/chip8-splash.ch8");
+  load_program(cpu, "./tests/ibm-logo.ch8");
 
   for (;;) {
     executeCpuCycle(cpu);
