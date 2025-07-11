@@ -1,15 +1,14 @@
-// opcode bitmasks
-const short OPCODE_BITMASK = 0xF000;
-const short OPERAND_1_BITMASK = 0x0F00;
-const short OPERAND_2_BITMASK = 0x00F0;
-const short SUBTYPE_BITMASK = 0x000F;
+#include <GLFW/glfw3.h>
+#include <stdbool.h>
 
 typedef struct chip8 {
   unsigned short pc;
   unsigned short opcode;
   unsigned short I;
   unsigned short sp;
+  bool draw_flag;
 
+  GLFWwindow *window;
   char display[64 * 32];
   unsigned short stack[16];
   unsigned char V[16];
@@ -22,3 +21,7 @@ typedef struct chip8 {
 
 void initialise_chip8(chip8 *cpu);
 void load_program(chip8 *cpu, char *program_name);
+void executeCpuCycle(chip8 *cpu);
+
+void drawDisplay(chip8 *cpu);
+void clearDisplay(chip8 *cpu);

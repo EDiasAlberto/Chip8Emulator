@@ -1,6 +1,9 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -g
+CFLAGS = -Wall -Wextra -std=c99 -g -I/opt/homebrew/include
+
+# Libraries to link (GLFW + OpenGL on macOS)
+LIBS = -L/opt/homebrew/lib -lglfw -framework OpenGL
 
 # Directories
 SRC_DIR = src
@@ -19,7 +22,7 @@ all: $(TARGET)
 # Link object files into final executable
 $(TARGET): $(OBJS)
 	@mkdir -p $(OUT_DIR)
-	$(CC) $(CFLAGS) -o $@ $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 # Compile each .c file to .o file in /out/
 $(OUT_DIR)/%.o: $(SRC_DIR)/%.c
