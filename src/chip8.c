@@ -13,10 +13,6 @@
 // - implement key controls
 
 #define OVERFLOW_REG 0xF
-#define OPCODE_BITMASK 0xF000
-#define OPERAND_1_BITMASK 0x0F00
-#define OPERAND_2_BITMASK 0x00F0
-#define SUBTYPE_BITMASK 0x000F
 
 #define PIXEL_SIZE 10
 #define WINDOW_WIDTH (64 * PIXEL_SIZE)
