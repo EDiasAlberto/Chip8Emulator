@@ -22,6 +22,20 @@ typedef struct chip8 {
   unsigned short exit_status;
 } chip8;
 
+enum Comparison { EQUAL, GREATERTHAN, LESSTHAN, NOTEQUAL };
+
+enum RegOperationType {
+  ASSIGNMENT,
+  BITWISE_OR,
+  BITWISE_AND,
+  BITWISE_XOR,
+  ADD,
+  SUBTRACT,
+  BITSHIFT_R,
+  REVERSE_SUB,
+  BITSHIFT_L = 0x000E
+};
+
 void initialise_chip8(chip8 *cpu);
 void load_program(chip8 *cpu, char *program_name);
 void executeCpuCycle(chip8 *cpu);

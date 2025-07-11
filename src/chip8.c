@@ -8,7 +8,9 @@
 #include <string.h>
 
 // TODO:
-// - implement more opcodes !!
+// - implement sound opcodes
+// - implement timer opcodes
+// - implement key controls
 
 #define OVERFLOW_REG 0xF
 #define OPCODE_BITMASK 0xF000
@@ -41,7 +43,7 @@ unsigned char chip8_fontset[80] = {
 
 void handleRegToRegOperation(chip8 *cpu);
 bool checkOverflow(char a, char b);
-bool doRegistersPassCondition(char num1, char num2, uint8_t comparison);
+bool doRegistersPassCondition(char num1, char num2, enum Comparison comparison);
 short getHexDigits(short opcode, uint8_t start_pos, uint8_t num_bits);
 void pushPC(chip8 *cpu);
 void popPC(chip8 *cpu);
@@ -166,7 +168,7 @@ void executeCpuCycle(chip8 *cpu) {
   case 0x4000:
     target_reg = getHexDigits(cpu->opcode, 1, 1);
     imm_val = getHexDigits(cpu->opcode, 2, 2);
-    if (cpu->V[target_reg] != imm_val) {
+    if (doRegistersPassCondition(cpu->V[target_reg], imm_val, NOTEQUAL)) {
       cpu->pc += 4;
     } else {
       cpu->pc += 2;
@@ -308,36 +310,36 @@ void handleRegToRegOperation(chip8 *cpu) {
   bool overflow_flag;
 
   switch (cpu->opcode & 0x000F) {
-  case 0x0000:
+  case ASSIGNMENT:
     cpu->V[target_reg] = cpu->V[source_reg];
     break;
-  case 0x0001:
+  case BITWISE_OR:
     cpu->V[target_reg] = cpu->V[target_reg] | cpu->V[source_reg];
     break;
-  case 0x0002:
+  case BITWISE_AND:
     cpu->V[target_reg] = cpu->V[target_reg] & cpu->V[source_reg];
     break;
-  case 0x0003:
+  case BITWISE_XOR:
     cpu->V[target_reg] = cpu->V[target_reg] ^ cpu->V[source_reg];
     break;
-  case 0x0004:
+  case ADD:
     overflow_flag = checkOverflow(cpu->V[target_reg], cpu->V[source_reg]);
     cpu->V[OVERFLOW_REG] = overflow_flag;
     cpu->V[target_reg] = cpu->V[target_reg] + cpu->V[source_reg];
     break;
-  case 0x0005:
+  case SUBTRACT:
     cpu->V[OVERFLOW_REG] = cpu->V[target_reg] > cpu->V[source_reg];
     cpu->V[target_reg] = cpu->V[target_reg] - cpu->V[source_reg];
     break;
-  case 0x0006:
+  case BITSHIFT_R:
     cpu->V[OVERFLOW_REG] = cpu->V[target_reg] & 0x1;
     cpu->V[target_reg] = cpu->V[target_reg] >> 1;
     break;
-  case 0x0007:
+  case REVERSE_SUB:
     cpu->V[OVERFLOW_REG] = cpu->V[source_reg] > cpu->V[target_reg];
     cpu->V[target_reg] = cpu->V[source_reg] - cpu->V[target_reg];
     break;
-  case 0x000E:
+  case BITSHIFT_L:
     cpu->V[OVERFLOW_REG] = cpu->V[target_reg] & 0x80;
     cpu->V[target_reg] = cpu->V[target_reg] << 1;
     break;
@@ -414,18 +416,19 @@ short getHexDigits(short opcode, uint8_t start_pos, uint8_t num_bits) {
   return (opcode >> shift) & bitmask;
 }
 
-bool doRegistersPassCondition(char num1, char num2, uint8_t comparison) {
+bool doRegistersPassCondition(char num1, char num2,
+                              enum Comparison comparison) {
   switch (comparison) {
-  case 0x0:
+  case EQUAL:
     return num1 == num2;
     break;
-  case 0x1:
+  case GREATERTHAN:
     return num1 >= num2;
     break;
-  case 0x2:
+  case LESSTHAN:
     return num1 <= num2;
     break;
-  case 0x3:
+  case NOTEQUAL:
     return num1 != num2;
     break;
   default:
