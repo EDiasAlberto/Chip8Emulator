@@ -8,8 +8,8 @@
 #include <string.h>
 
 // TODO:
-// - implement sound opcodes
-// - implement timer opcodes
+// - implement sound timer decrement
+// - implement delay timer decrement
 // - implement key controls
 
 #define OVERFLOW_REG 0xF
@@ -304,8 +304,16 @@ void handleTimerInstruction(chip8 *cpu) {
     // convert word to BCD and store in I, I+1, I+2; dont change I
   case 0x0055:
     // store V0 to Vx in memory starting at I; dont change I
+    for (int i = 0; i < target_reg; i++) {
+      cpu->memory[cpu->I + i] = cpu->V[i];
+    }
+    cpu->pc += 2;
   case 0x0065:
     // store I to I+X into V0 to VX; dont change i
+    for (int i = 0; i < target_reg; i++) {
+      cpu->V[i] = cpu->memory[cpu->I + i];
+    }
+    cpu->pc += 2;
   default:
     printf("Not implemented opcode 0x%x\n", cpu->opcode);
   }
