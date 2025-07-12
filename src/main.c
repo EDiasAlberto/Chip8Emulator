@@ -56,6 +56,10 @@ int main() {
       }
     }
     glfwPollEvents();
+
+    if (cpu->delay_timer > 0) {
+      cpu->delay_timer--;
+    }
   }
   return 0;
 }
