@@ -40,7 +40,7 @@ unsigned char chip8_fontset[80] = {
 
 void handleRegToRegOperation(chip8 *cpu);
 bool checkOverflow(char a, char b);
-bool doRegistersPassCondition(char num1, char num2, enum Comparison comparison);
+bool doRegistersPassCondition(int num1, int num2, enum Comparison comparison);
 short getHexDigits(short opcode, uint8_t start_pos, uint8_t num_bits);
 void pushPC(chip8 *cpu);
 void popPC(chip8 *cpu);
@@ -173,6 +173,7 @@ void executeCpuCycle(chip8 *cpu) {
     break;
   case COND_JUMP:
     handleConditionalSkipOperation(cpu);
+    break;
   case LOAD_IMM:
     target_reg = getHexDigits(cpu->opcode, 1, 1);
     imm_val = getHexDigits(cpu->opcode, 2, 2);
@@ -302,21 +303,25 @@ void handleTimerInstruction(chip8 *cpu) {
     uint8_t req_char = cpu->V[target_reg];
     cpu->I = FONT_WIDTH * req_char;
     cpu->pc += 2;
+    break;
   case 0x0033:
     cpu->memory[cpu->I] = cpu->V[target_reg] / 100;
     cpu->memory[cpu->I + 1] = (cpu->V[target_reg] / 10) % 10;
     cpu->memory[cpu->I + 2] = (cpu->V[target_reg] % 100) % 10;
     cpu->pc += 2;
+    break;
   case 0x0055:
-    for (int i = 0; i < target_reg; i++) {
-      cpu->memory[cpu->I + i] = cpu->V[i];
+    for (int i = 0; i <= target_reg; i++) {
+      cpu->memory[(cpu->I) + i] = cpu->V[i];
     }
     cpu->pc += 2;
+    break;
   case 0x0065:
-    for (int i = 0; i < target_reg; i++) {
-      cpu->V[i] = cpu->memory[cpu->I + i];
+    for (int i = 0; i <= target_reg; i++) {
+      cpu->V[i] = cpu->memory[(cpu->I) + i];
     }
     cpu->pc += 2;
+    break;
   default:
     printf("Not implemented opcode 0x%x\n", cpu->opcode);
   }
@@ -434,8 +439,7 @@ short getHexDigits(short opcode, uint8_t start_pos, uint8_t num_bits) {
   return (opcode >> shift) & bitmask;
 }
 
-bool doRegistersPassCondition(char num1, char num2,
-                              enum Comparison comparison) {
+bool doRegistersPassCondition(int num1, int num2, enum Comparison comparison) {
   switch (comparison) {
   case EQUAL:
     return num1 == num2;

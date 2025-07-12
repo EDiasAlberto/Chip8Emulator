@@ -22,7 +22,12 @@ typedef struct chip8 {
   unsigned short exit_status;
 } chip8;
 
-enum Comparison { EQUAL, GREATERTHAN, LESSTHAN, NOTEQUAL };
+enum Comparison {
+  EQUAL = 0x0,
+  GREATERTHAN = 0x1,
+  LESSTHAN = 0x2,
+  NOTEQUAL = 0x3
+};
 
 enum RegOperationType {
   ASSIGNMENT,
