@@ -33,7 +33,7 @@ int main() {
   }
 
   initialise_chip8(cpu);
-  load_program(cpu, "./tests/ibm-logo.ch8");
+  load_program(cpu, "./tests/3-corax.ch8");
   glfwSetKeyCallback(cpu->window, key_callback);
 
   for (;;) {

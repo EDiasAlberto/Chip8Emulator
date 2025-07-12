@@ -244,6 +244,7 @@ void handleControlInstruction(chip8 *cpu) {
       break;
     case 0x000E:
       popPC(cpu);
+      cpu->pc += 2;
       break;
     }
     break;
@@ -454,13 +455,13 @@ bool doRegistersPassCondition(char num1, char num2,
 }
 
 void pushPC(chip8 *cpu) {
-  cpu->sp++;
   cpu->stack[cpu->sp] = cpu->pc;
+  cpu->sp++;
 }
 
 void popPC(chip8 *cpu) {
-  cpu->pc = cpu->stack[cpu->sp];
   cpu->sp--;
   if (cpu->sp < 0)
     cpu->sp = 0;
+  cpu->pc = cpu->stack[cpu->sp];
 }
