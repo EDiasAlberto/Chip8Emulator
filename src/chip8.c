@@ -181,7 +181,7 @@ void executeCpuCycle(chip8 *cpu) {
     break;
   case ADD_IMM:
     target_reg = getHexDigits(cpu->opcode, 1, 1);
-    imm_val = getHexDigits(cpu->opcode, 1, 1);
+    imm_val = getHexDigits(cpu->opcode, 2, 2);
     cpu->V[target_reg] = cpu->V[target_reg] + imm_val;
     cpu->pc += 2;
     break;

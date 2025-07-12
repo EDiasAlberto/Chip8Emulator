@@ -5,8 +5,28 @@
 
 #define PROGRAM_LENGTH 39
 
+unsigned int key_mapping[16] = {GLFW_KEY_X, GLFW_KEY_1, GLFW_KEY_2, GLFW_KEY_3,
+                                GLFW_KEY_Q, GLFW_KEY_W, GLFW_KEY_E, GLFW_KEY_A,
+                                GLFW_KEY_S, GLFW_KEY_D, GLFW_KEY_Z, GLFW_KEY_C,
+                                GLFW_KEY_4, GLFW_KEY_R, GLFW_KEY_F, GLFW_KEY_V};
+
+chip8 *cpu;
+
+void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                  int mods) {
+  for (int i = 0; i < 16; i++) {
+    if (key == key_mapping[i] && action == GLFW_PRESS) {
+      // set key press of i, in cpu
+      cpu->key[i] = 1;
+    } else if (key == key_mapping[i] && action == GLFW_RELEASE) {
+      // release key press of i, in cpu
+      cpu->key[i] = 0;
+    }
+  }
+}
+
 int main() {
-  chip8 *cpu = malloc(sizeof(chip8));
+  cpu = (chip8 *)malloc(sizeof(chip8));
 
   if (cpu == NULL) {
     perror("ERROR ALLOCATING MEMORY FOR CPU STRUCT");
@@ -14,6 +34,7 @@ int main() {
 
   initialise_chip8(cpu);
   load_program(cpu, "./tests/ibm-logo.ch8");
+  glfwSetKeyCallback(cpu->window, key_callback);
 
   for (;;) {
     executeCpuCycle(cpu);
