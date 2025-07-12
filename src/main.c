@@ -40,7 +40,7 @@ int main() {
   }
 
   initialise_chip8(cpu);
-  load_program(cpu, "./tests/6-keypad.ch8");
+  load_program(cpu, "./tests/7-beep.ch8");
   glfwSetKeyCallback(cpu->window, key_callback);
 
   for (;;) {
@@ -59,6 +59,14 @@ int main() {
 
     if (cpu->delay_timer > 0) {
       cpu->delay_timer--;
+    }
+
+    if (cpu->sound_timer > 0) {
+      cpu->sound_timer--;
+      if (cpu->sound_timer == 0) {
+        printf("beep!\n");
+        printf("\a\n");
+      }
     }
   }
   return 0;
