@@ -7,6 +7,8 @@ typedef struct chip8 {
   unsigned short I;
   unsigned short sp;
   bool draw_flag;
+  bool halted;
+  unsigned short waiting_key_register;
 
   GLFWwindow *window;
   char display[64 * 32];

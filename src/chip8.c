@@ -61,6 +61,8 @@ void initialise_chip8(chip8 *cpu) {
   cpu->I = 0;
   cpu->sp = 0;
   cpu->draw_flag = false;
+  cpu->halted = false;
+  cpu->waiting_key_register = 0;
 
   printf("Clearing arrays for display, mem, stack, regs\n");
   memset(cpu->display, 0, sizeof(cpu->display));
@@ -284,7 +286,8 @@ void handleTimerInstruction(chip8 *cpu) {
     break;
   case 0x000A:
     // Need to wait for keypress and store value of key in target_reg;
-    cpu->pc += 2;
+    cpu->halted = true;
+    cpu->waiting_key_register = target_reg;
     break;
   case 0x0015:
     cpu->delay_timer = cpu->V[target_reg];

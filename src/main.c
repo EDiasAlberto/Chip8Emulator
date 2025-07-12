@@ -18,9 +18,16 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     if (key == key_mapping[i] && action == GLFW_PRESS) {
       // set key press of i, in cpu
       cpu->key[i] = 1;
+      if (cpu->halted) {
+        cpu->V[cpu->waiting_key_register] = i;
+      }
     } else if (key == key_mapping[i] && action == GLFW_RELEASE) {
       // release key press of i, in cpu
       cpu->key[i] = 0;
+      if (i == cpu->V[cpu->waiting_key_register]) {
+        cpu->halted = false;
+        cpu->pc += 2;
+      }
     }
   }
 }
@@ -33,20 +40,22 @@ int main() {
   }
 
   initialise_chip8(cpu);
-  load_program(cpu, "./tests/3-corax.ch8");
+  load_program(cpu, "./tests/6-keypad.ch8");
   glfwSetKeyCallback(cpu->window, key_callback);
 
   for (;;) {
-    executeCpuCycle(cpu);
-    if (cpu->draw_flag) {
-      drawDisplay(cpu);
-      glfwSwapBuffers(cpu->window);
+    if (!cpu->halted) {
+      executeCpuCycle(cpu);
+      if (cpu->draw_flag) {
+        drawDisplay(cpu);
+        glfwSwapBuffers(cpu->window);
+      }
+      if (cpu->exit_flag) {
+        printf("Exiting emulation with exit status %i\n", cpu->exit_status);
+        return 0;
+      }
     }
     glfwPollEvents();
-    if (cpu->exit_flag) {
-      printf("Exiting emulation with exit status %i\n", cpu->exit_status);
-      return 0;
-    }
   }
   return 0;
 }
