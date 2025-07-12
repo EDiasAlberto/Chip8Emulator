@@ -5,6 +5,11 @@
 
 #define PROGRAM_LENGTH 39
 
+// TODO:
+//- Fix flag checks
+//- Implement actual sound for beep
+//- Implement other CHIP8 systems
+
 unsigned int key_mapping[16] = {GLFW_KEY_X, GLFW_KEY_1, GLFW_KEY_2, GLFW_KEY_3,
                                 GLFW_KEY_Q, GLFW_KEY_W, GLFW_KEY_E, GLFW_KEY_A,
                                 GLFW_KEY_S, GLFW_KEY_D, GLFW_KEY_Z, GLFW_KEY_C,
@@ -40,7 +45,7 @@ int main() {
   }
 
   initialise_chip8(cpu);
-  load_program(cpu, "./tests/7-beep.ch8");
+  load_program(cpu, "./tests/4-flags.ch8");
   glfwSetKeyCallback(cpu->window, key_callback);
 
   for (;;) {
